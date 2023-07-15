@@ -1,0 +1,47 @@
+<mat-icon class="dialog-close-icon" [mat-dialog-close]="false">close</mat-icon>
+<h1 mat-dialog-title style="text-align: center;">Booking Confirmed!</h1>
+<div mat-dialog-content>
+    <!-- <h3 style="text-align: center; text-decoration: none;
+   margin: 0;">Your taxi is scheduled for: will call on {{callDate}}</h3> -->
+   
+    <h3 style="text-decoration: underline;">Ride Details</h3>
+    <div>
+        <div>
+            <div style="display: flex;">
+                <div>Pickup:</div> 
+                <div style="margin-left: 16px;">{{pickup}}</div>
+            </div>
+            <div style="display: flex;">
+                <div>Destination:</div> 
+                <div style="margin-left: 16px;">{{destination}}</div>
+            </div>
+            <div style="display: flex;">
+                <div>Passenger Name:</div> 
+                <div style="margin-left: 16px;">{{passengerName}}</div>
+            </div>
+            <div style="display: flex;">
+                <div>Phone Number:</div> 
+                <div style="margin-left: 16px;">{{companyPhone}}</div>
+            </div>
+
+            <div style="display: flex;">
+                <div>Confirmation #:</div> 
+                <div style="margin-left: 16px;">{{confirmationCode}}</div>
+            </div>
+            <div style="display: flex;">
+                <div>Fleet:</div> 
+                <div style="margin-left: 16px;">{{fleet}} </div>
+            </div>
+            
+        </div>
+    </div>
+
+</div>
+<div mat-dialog-actions class="action-buttons">
+    <!-- <button mat-button mat-stroked-button [mat-dialog-close]="true" (click)="cancelRide()">
+        Cancel Ride
+    </button> -->
+    <button mat-button mat-stroked-button [mat-dialog-close]="true">
+        Ok.Next Booking!
+    </button>
+</div>

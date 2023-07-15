@@ -1,0 +1,192 @@
+<div id="ride-details-container" [ngClass]="isSwipedUp ? 'swipe-up' : 'swipe-down'" cdkDragLockAxis="y" cdkDrag
+    cdkDragBoundary="#ride-details-drag-container" [cdkDragDisabled]="true" (cdkDragMoved)="dragging()"
+    #rideDetailsContainer [style.max-height]="'100vh'" [style.touch-action]="'none'" [style.overflow-y]="'none'"
+    [style.z-index]="'100'" (scroll)="onScroll()">
+    <!-- [style.touch-action]="allowScroll ? 'auto' : 'none'"
+[style.overflow-y]="allowScroll ? 'scroll' : 'hidden'" -->
+    <!-- <div id="drag-handle" *ngIf="!disableDrag"></div> -->
+
+    <!-- {{ originalPosition }} {{ getInnerHeight() }} {{ allowScroll }}
+    {{ canDrag() }} -->
+    <div id="drag-handle" *ngIf="!disableDrag" (click)="onClickDragBar()">
+        <!-- <div id="drag-button"></div> -->
+
+        <div *ngIf="!isSwipedUp" class="map_showing_arrow">
+            <mat-icon class="mat_arrow_up icon">keyboard_arrow_up</mat-icon>
+            <span class="showing_text">Hide Map</span>
+        </div>
+
+        <div *ngIf="isSwipedUp" class="map_showing_arrow">
+            <mat-icon class="mat_arrow_down icon">keyboard_arrow_down</mat-icon>
+            <span class="showing_text">Show Map</span>
+        </div>
+    </div>
+    <!-- [style.transition]="'transform 300ms ease-in-out'" -->
+    <!-- transition: transform 100ms cubic-bezier(0, 0, 0.15, 1) 0s; -->
+    <div style="display: flex;">
+        <div #rideDetailsSmallContainer
+            [style.height]="isSwipedUp ? isMobile ? 'calc(100vh - 10px)' : 'fit-content' : isMobile ? 'calc(100vh - 350px)' : 'fit-content'"
+            [ngStyle]="{'padding-bottom': isMobile ? '0px' : '20px'}" [style.overflow-y]="'auto'"
+            [style.scroll-behavior]="'smooth'" cdkDragLockAxis="y" [cdkDragDisabled]="true" cdkDrag
+            style="background-color: #303234;width: 400px;" class="left-box">
+            <app-select-addresses [disableDrag]="disableDrag"></app-select-addresses>
+            <div id="cab-and-fare-container" *ngIf="showCabAndFare">
+                <app-vehicle-type *ngIf="selectedVehicleType != null" [type]="selectedVehicleType.type"
+                    [selectableTypes]="vehicleTypes" [isOption]="false" [displayFare]="displayFare"
+                    [eta]="selectedVehicleType.eta" (click)="openVehicleSelectDialog()"></app-vehicle-type>
+                <!-- removed by ASE -->
+                <!-- (click)="openVehicleSelectDialog()" -->
+
+                <div id="pickup-and-payment-method-container">
+                    <div id="pickup-container">
+                        <!-- [matMenuTriggerFor]="menu" -->
+                        <div id="change-pickup-button" #pickupNow (click)="changePickup()">
+                            <mat-icon id="pickup-access-time-icon">access_time</mat-icon>
+                            <!-- isNow ? "Pickup Now" : "Schedule Ride" -->
+                            <span>{{
+                                isNow ? "Pickup Now" : selectedDateTimeShow == "" ? "Pickup Now" :
+                                selectedDateTimeShow
+                                }}</span>
+                            <mat-icon id="pickup-expand-more-icon">expand_more</mat-icon>
+                        </div>
+
+                        <!-- <mat-icon *ngIf="!isNow" id="pickup-event-icon" (click)="openDateTimeModal()">event</mat-icon> -->
+                    </div>
+
+                    <div>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="changePickup()">
+                                {{ isNow ? "Ride Later" : "Pickup Now" }}
+                            </button>
+                        </mat-menu>
+                    </div>
+
+                    <div id="payment-method-container">
+                        <img id="cash-icon" src="/assets/icons/Pay-in-Cab.png" />
+                        <span id="payment-method">Pay in cab</span>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!addressSuggestionsActive" id="ride-details" [style.margin-bottom]="'10px'">
+                <div style="display: inline-block;">
+                    <div class="left-part">
+                        <div id="passenger-details-form" [formGroup]="form" *ngIf="showPassengerDetails">
+                            <div appearance="outline" class="customized-input-form-field">
+                                <div class="custom-input-container" [ngClass]="{
+                                'redline': !focusPassenger && ( (isTwoLetterError && requiredName) || ( form.controls['name'].hasError('required') && requiredName  && (form.controls['name'].dirty || form.controls['name'].touched) ) )
+                                    }">
+                                    <input formControlName="name" placeholder="Passenger Name*" autocomplete="off"
+                                        required spellcheck="false" (input)="onChangePassengerName($event)"
+                                        (focus)="onFocusInput($event,'passenger')"
+                                        (focusout)="onFocusInputOut($event, 'passenger')" />
+                                </div>
+                                <div class="error-message" *ngIf=" 
+                                        !focusPassenger && (
+                                            (isTwoLetterError && requiredName) || (
+                                                form.controls['name'].hasError('required') &&
+                                                requiredName &&
+                                                (form.controls['name'].dirty ||
+                                                    form.controls['name'].touched)
+                                                )
+                                            )
+        
+                                        ">Valid passenger name is required</div>
+                            </div>
+                            <app-phone-number-input [savedPhoneNumber]="savedPhoneNumber"
+                                (phoneNumberChange)="savedPhoneNumber = $event"
+                                (input)="nextBtnState()"></app-phone-number-input>
+
+                            <div appearance="outline" class="customized-input-form-field">
+                                <div class="custom-input-container" [ngClass]="{
+                                    'redline':
+                                    !focusEmail &&
+                                    ( ((!form.controls['email'].hasError('required') && this.form.controls['email'].invalid) || (form.controls['email'].hasError('required') && requiredEmail )) && (form.controls['email'].dirty || form.controls['email'].touched) )
+                                }">
+                                    <input formControlName="email" placeholder="Email* (for e-receipt)"
+                                        autocomplete="off" required autocapitalize="off" spellcheck="false"
+                                        (focus)="onFocusInput($event,'email')"
+                                        (focusout)="onFocusInputOut($event, 'email')">
+                                </div>
+                                <div class="error-message" *ngIf="
+                                !focusEmail &&
+                                (form.controls['email'].hasError('required') && requiredEmail && (form.controls['email'].dirty || form.controls['email'].touched))
+                                ">
+                                    Email is required
+                                </div>
+
+                                <div class="error-message" *ngIf="
+                                !focusEmail && 
+                                (!form.controls['email'].hasError('required') && this.form.controls['email'].invalid && (form.controls['email'].dirty || form.controls['email'].touched))
+                                ">
+                                    Email invalid
+                                </div>
+                            </div>
+
+                            <div appearance="outline" class="customized-input-form-field">
+                                <div class="custom-input-container">
+                                    <input formControlName="comment" (focus)="onFocusOtherInputs('note')"
+                                        placeholder="Note for Driver (e.g. I'm at the Starbucks)" autocomplete="off"
+                                        maxlength="140" spellcheck="false" (input)="onInputNoteDriver($event)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="create-trip-buttons" *ngIf="showPassengerDetails">
+                            <button id="account-answer-trip" mat-button (click)="displayRightBox()"
+                                [disabled]="nextBtnDisplaty">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Start Right Part -->
+        <div class="right-box" [style.display]="rightBoxDisplay ? 'block' : 'none'">
+            <div id="passenger-details-form" [formGroup]="form" *ngIf="showPassengerDetails">
+                <div appearance="outline" class="customized-input-form-field">
+                    <div class="custom-input-container" [ngClass]="{
+                        'redline': !focusPassenger && ( (isTwoLetterError && requiredName) || ( form.controls['name'].hasError('required') && requiredName  && (form.controls['name'].dirty || form.controls['name'].touched) ) )
+                    }">
+                        <input formControlName="name" placeholder="Passenger Name*" autocomplete="off" required
+                            spellcheck="false" (input)="onChangePassengerName($event)"
+                            (focus)="onFocusInput($event,'passenger')"
+                            (focusout)="onFocusInputOut($event, 'passenger')" />
+                    </div>
+                </div>
+            </div>
+            <div id="create-trip-buttons" *ngIf="showPassengerDetails">
+                <!-- <button id="request-ride-button" mat-button (click)="bookScheduledTrip()" [disabled]="fare == null"> -->
+                <button *ngIf="isNow" id="request-ride-button" mat-button (click)="bookScheduledTrip()"
+                    [disabled]="displayFare == null || isPickupAirport">
+                    Request {{selectedVehicleType?.type ? VEHICLE_TYPES[selectedVehicleType.type].displayName :
+                    'Standard Taxi'}}
+                </button>
+
+                <button *ngIf="!isNow" id="request-ride-button" class="schedule-ride" mat-button
+                    (click)="bookScheduledTrip()" [disabled]="fare == null || isPickupAirport">
+                    <div>Schedule {{selectedVehicleType?.type ?
+                        VEHICLE_TYPES[selectedVehicleType.type].displayName :
+                        'Standard
+                        Taxi'}}</div>
+                    <div class="schedule-button-date">{{selectedDateTimeShow}}</div>
+                </button>
+
+                <button id="walk-up-trip-code-button" mat-button (click)="bookWalkUpTrip()"
+                    [disabled]="displayFare == null">
+                    Trip Code
+                </button>
+                <mat-icon style="cursor: pointer; font-size: 1.3rem; display:flex; align-items: center;"
+                    (click)="infoTripCodeClick()">info_outline</mat-icon>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div class="spinner-overlay" *ngIf="insertTripInProgress">
+    <!-- <mat-spinner></mat-spinner> -->
+    <app-loader [size]="'large'"></app-loader>
+</div>
+<!-- <div class="spinner-overlay" *ngIf="showSpinner">
+    <div>Getting location...</div>
+</div> -->

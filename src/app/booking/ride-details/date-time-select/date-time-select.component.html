@@ -1,0 +1,53 @@
+<div class="datetime-select-header" >
+    <h5 style="cursor: pointer; font-size:16px; color: #ababab;" (click)="resetDateTime()">RESET</h5>
+    <h4 style=" font-size:18px; font-weight:100;">Schedule Ride</h4>
+    <!-- (click)="close()" -->
+    <h5 (click)="setDateTime()" style="color: #f41952; font-size:16px; cursor: pointer;">SAVE</h5>
+    <!-- <mat-icon class="dialog-close-icon" (click)="close()">close</mat-icon> -->
+</div>
+
+<div>
+    <div class="pickupnow-content">
+
+        <div class="datepicker">
+            <!-- <mat-datepicker-toggle matSuffix [for]="picker" onchange="onDateChanged($event)"> -->
+            <!-- </mat-datepicker-toggle> -->
+            <button mat-icon-button type="button" (click)="picker.open()" style="width: 30px; height: 30px; display: flex; align-items: center;">
+                <mat-icon>calendar_today</mat-icon>
+            </button>
+            
+            <!-- <input matInput [matDatepicker]="picker" [(ngModel)]="pickupDate" [min]="currentDate" /> -->
+            <input matInput [matDatepicker]="picker" [(ngModel)]="pickupDate" [min]="currentDate" [max]="maxDate"
+            (ngModelChange)="modelChanged($event)" (click)="picker.open()"/>
+            <label class="dateshow"  (click)="picker.open()">{{formatedDate}}</label>
+            <mat-datepicker #picker [calendarHeaderComponent]="exampleHeader"></mat-datepicker>
+
+        </div>
+
+        <div style="display: flex; flex-direction: row">
+            <div class="time-form-field" >
+                <mat-select [(ngModel)]="pickupTime.hours" class="custom-scrollbar">
+                    <mat-option *ngFor="let hourValue of HOURS" [value]="hourValue">{{ hourValue }}</mat-option>
+                </mat-select>
+            </div>
+            <span class="double-point">:</span>
+            <div class="time-form-field" >
+                <mat-select [(ngModel)]="pickupTime.minutes">
+                    <mat-option *ngFor="let minuteValue of MINUTES" [value]="minuteValue">
+                        {{ formatTimeValue(minuteValue) }}</mat-option>
+                </mat-select>
+            </div>
+            <button class="btn-change-period" (click)="changePeriod()">
+                {{ pickupTime.period }}
+            </button>
+            <!-- <span style="margin-left: 10px"> ({{ timeZoneAbbrev }}) </span> -->
+        </div>
+    </div>
+
+    <div *ngIf="warningLessThan45">
+        <div style="margin-bottom:0; font-size: 14px; color: #ff5722; text-align: center; margin-top: 12px;">Must be at least 45 mins from now</div>
+    </div>
+</div>
+<!-- <div mat-dialog-actions>
+    <button mat-button (click)="setDateTime()">Set</button>
+</div> -->

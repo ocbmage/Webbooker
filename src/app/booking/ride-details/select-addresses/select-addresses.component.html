@@ -1,0 +1,164 @@
+<mat-card class="mat-elevation-z3" id="ride-details">
+    <mat-card-header>
+        <mat-card-title>{{ getCardTitle() }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <div id="address-form-fields-container">
+            <!-- <div id="dropoff-pickup-connection">
+                <div class="dot pickup"></div>
+                <div id="dropoff-pickup-connection-line-container">
+                    <div id="dropoff-pickup-connection-line"></div>
+                </div>
+                <div class="dot dropoff"></div>
+            </div> -->
+            <div id="input-containers">
+                <div class="form-field-container">
+                    <mat-form-field appearance="outline" class="form-field">
+                        <div class="dot-container">
+                            <span class="dot pickup"></span>
+                        </div>
+                        <input #pickupAddressInput matInput (focus)="onFocus($event,'pickup')"
+                            (focusout)="onFocusOut($event, 'pickup')" placeholder="Enter a pickup location"
+                            (keyup)="searchAddress($event, 'pickup')" [ngModel]="pickupAddress.title" autocomplete="off" />
+                        <!-- <div
+                            id="clear-icon-container"
+                            class="clear-icon-container"
+                            matSuffix
+                            aria-label="Clear"
+                            *ngIf="showClearButton('pickup')"
+                            (click)="clearAddress('pickup')"
+                        > -->
+                        <div>
+                            <mat-spinner [diameter]="15" *ngIf="showLoadingCurrentLocation"></mat-spinner>
+                            <!-- *ngIf="showClearButton('pickup') && !showLoadingCurrentLocation" -->
+                            <div class="clear-icon-container" aria-label="Clear" (focus)="onFocusClear('pickup')"
+                                *ngIf="showClearButton('pickup') && !showLoadingCurrentLocation"
+                                (click)="clearAddress('pickup')">
+                                <span class="clear-icon">close</span>
+                            </div>
+
+                            <div class="clear-icon-container" aria-label="Clear"
+                                *ngIf="!showClearButton('pickup') && !showLoadingCurrentLocation"
+                                (click)="clickMyCurrentAddress()">
+                                <span class="clear-icon">my_location</span>
+                            </div>
+                            <!-- <mat-icon>my_location</mat-icon> -->
+                            <!-- <div class="mylocation-container" *ngIf="!showClearButton('pickup') && !showLoadingCurrentLocation"
+                                (click)="clickMyCurrentAddress()">
+                                    <svg width="18px" height="18px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                            <g class="mylocation-g" id="ic_fluent_my_location_24_regular" fill="#ffffff" fill-rule="nonzero">
+                                                <path d="M12,2 C12.3796958,2 12.693491,2.28215388 12.7431534,2.64822944 L12.75,2.75 L12.7490685,4.53770881 L12.7490685,4.53770881 C16.292814,4.88757432 19.1124257,7.70718602 19.4632195,11.2525316 L19.5,11.25 L21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.3796958 21.7178461,12.693491 21.3517706,12.7431534 L21.25,12.75 L19.4616558,12.7490368 L19.4616558,12.7490368 C19.1124257,16.292814 16.292814,19.1124257 12.7474684,19.4632195 L12.75,19.5 L12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.6203042,22 11.306509,21.7178461 11.2568466,21.3517706 L11.25,21.25 L11.2509632,19.4616558 L11.2509632,19.4616558 C7.70718602,19.1124257 4.88757432,16.292814 4.53678051,12.7474684 L4.5,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.6203042 2.28215388,11.306509 2.64822944,11.2568466 L2.75,11.25 L4.53770881,11.2509315 L4.53770881,11.2509315 C4.88757432,7.70718602 7.70718602,4.88757432 11.2525316,4.53678051 L11.25,4.5 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 Z M12,6 C8.6862915,6 6,8.6862915 6,12 C6,15.3137085 8.6862915,18 12,18 C15.3137085,18 18,15.3137085 18,12 C18,8.6862915 15.3137085,6 12,6 Z M12,8 C14.209139,8 16,9.790861 16,12 C16,14.209139 14.209139,16 12,16 C9.790861,16 8,14.209139 8,12 C8,9.790861 9.790861,8 12,8 Z" id="🎨-Color">
+                                                </path>
+                                            </g>
+                                        </g>
+                                    </svg>
+                            </div> -->
+
+                        </div>
+                    </mat-form-field>
+                    <!-- <div class="spinner-container">
+                        <mat-spinner
+                            diameter="20"
+                            *ngIf="
+                                selectAddressService.showPickupAddressSpinner
+                            "
+                        ></mat-spinner>
+                    </div> -->
+                    <!-- <div class="loader-container">
+                        <app-loader
+                            *ngIf="
+                                selectAddressService.showPickupAddressSpinner
+                            "
+                        ></app-loader>
+                    </div> -->
+                </div>
+
+                <div class="form-field-container">
+                    <mat-form-field appearance="outline" class="form-field">
+                        <div class="dot-container">
+                            <span class="dot dropoff"></span>
+                        </div>
+                        <input #dropoffAddressInput matInput (focus)="onFocus($event, 'dropoff')"
+                            (focusout)="onFocusOut($event, 'dropoff')" placeholder="Enter a drop-off location"
+                            (keyup)="searchAddress($event, 'dropoff')" [ngModel]="dropoffAddress.title" autocomplete="off" />
+                        <div class="clear-icon-container" matSuffix aria-label="Clear"
+                            *ngIf="showClearButton('dropoff')" (click)="clearAddress('dropoff')">
+                            <span class="clear-icon">close</span>
+                        </div>
+
+                        <!-- <div
+                        class="clear-icon-container"
+                        aria-label="Clear"
+                        *ngIf="!showClearButton('dropoff')"
+                        >
+                            <span class="clear-icon">swap_vertical_circle</span>
+                        </div> -->
+
+                    </mat-form-field>
+                    <!-- <div class="spinner-container">
+                        <mat-spinner
+                            diameter="20"
+                            *ngIf="
+                                selectAddressService.showDropoffAddressSpinner
+                            "
+                        ></mat-spinner>
+                    </div> -->
+                    <!-- <div class="loader-container">
+                        <app-loader
+                            *ngIf="
+                                selectAddressService.showDropoffAddressSpinner
+                            "
+                        ></app-loader>
+                    </div> -->
+                </div>
+            </div>
+
+            <!-- <mat-spinner [diameter]="15" *ngIf="showLoadingCurrentLocation"></mat-spinner> -->
+            <!-- <mat-spinner [diameter]="15" style="margin-bottom: 10px;" 
+                *ngIf="
+                    selectAddressService.showPickupAddressSpinner || selectAddressService.showDropoffAddressSpinner
+                "
+            ></mat-spinner>     -->
+
+        </div>
+
+    </mat-card-content>
+</mat-card>
+<!-- *ngIf="showAddressSuggestions && addressSuggestions.length > 0" -->
+
+<mat-list class="address-suggestion-list">
+    <ng-container *ngFor="let suggestion of addressSuggestions">
+        <mat-list-item class="address-suggestion-list-item list-item" *ngIf="suggestion.title !== ''"
+            (click)="setAddress(suggestion)">
+
+            <div class="suggestion-container">
+                <div class="suggestion-icon-container">
+                    <div class="suggestion-icon" [ngClass]="{
+                            pickup: currentField === 'pickup',
+                            dropoff: currentField === 'dropoff'
+                        }"></div>
+                </div>
+                <div class="suggestion-content-container">
+                    <div class="suggestion-title">
+                        {{ suggestion.title }}
+                    </div>
+                    <div class="suggestion-detail">
+                        {{ suggestion.detail }}
+                    </div>
+                    <!-- <div class="suggestion-detail">
+                        {{ suggestion.detail }}
+                        {{ suggestion.fullResult.distance }}
+                    </div> -->
+                </div>
+            </div>
+        </mat-list-item>
+    </ng-container>
+</mat-list>
+
+<mat-spinner 
+    [diameter]="30" 
+    strokeWidth="2" 
+    style="margin-bottom: 10px; margin-left: auto; margin-right: auto; margin-top: 30px;"
+    *ngIf="!showLoadingCurrentLocation && (selectAddressService.showPickupAddressSpinner || selectAddressService.showDropoffAddressSpinner)">
+</mat-spinner>
